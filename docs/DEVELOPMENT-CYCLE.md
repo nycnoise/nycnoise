@@ -12,7 +12,6 @@ git remote add upstream https://github.com/gregsadetsky/nycnoise.git
 
 - you can check if it was succesful with: `git remote -v`
 - then fetch && merge to update your project: `git pull upstream/dev`
-
 - create a new branch based on `dev` for your feature or fix (e.g. make sure you're on `dev` and have git pulled from upstream, then `git checkout -b my-fix`)
 - keep branch up to date with the upstream dev
 - push code / branch to your repo (e.g. `git push origin my-fix`)
