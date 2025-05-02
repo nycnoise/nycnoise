@@ -2,10 +2,10 @@ asgiref==3.8.1
 astroid==3.3.9
 beautifulsoup4==4.13.4
 black==25.1.0
-boto3==1.38.3
+boto3==1.38.7
 certifi==2025.4.26
 cfgv==3.4.0
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
 click==8.1.8
 colorama==0.4.6
 dill==0.4.0
@@ -16,7 +16,7 @@ django-admin-sortable2==2.2.6
 django-appconf==1.1.0
 django-autocomplete-light==3.11.0
 django-compressor==4.5.1
-django-debug-toolbar==5.1.0
+django-debug-toolbar==5.2.0
 django-js-asset==3.1.2
 django-meta==2.5.0
 django-ordered-model==3.7.4
@@ -60,7 +60,7 @@ PyYAML==6.0.2
 rcssmin==1.1.2
 requests==2.32.3
 rjsmin==1.2.2
-setuptools==80.0.0
+setuptools==80.1.0
 six==1.17.0
 soupsieve==2.7
 sqlparse==0.5.3
