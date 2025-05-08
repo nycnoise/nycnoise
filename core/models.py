@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -156,6 +158,15 @@ class Event(models.Model):
         # https://stackoverflow.com/questions/31187359/django-save-method-needs-to-update-model-instance-twice#comment50382190_31187599
         baked_html_template = bake_event_html(self)
         Event.objects.filter(pk=self.pk).update(baked_html_template=baked_html_template)
+
+    @classmethod
+    def find_possible_duplicates(cls, venue, starttime):
+        """ Returns events that occur at the same venue at the same day as `starttime` """
+        min_dt = datetime.datetime.combine(starttime, datetime.time.min)
+        max_dt = datetime.datetime.combine(starttime, datetime.time.max)
+        return cls.objects.filter(venue=venue,
+                                  starttime__gte=min_dt,
+                                  starttime__lte=max_dt)
 
     # make age policy attribute that attempts to fetch its own
     # age policy by default, then tries to get venue's age policy if a venue is set,

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.html import escape, mark_safe
+from django.urls import reverse
 from django.views.generic.edit import CreateView
 
 
@@ -27,6 +28,10 @@ class UserSubmittedEventForm(forms.ModelForm):
     hyperlink = forms.URLField(label="link", required=False)
     ticket_hyperlink = forms.URLField(label="ticket link", required=False)
 
+    checked_for_duplicates = forms.BooleanField(required=False,
+                                                initial=False,
+                                                widget=forms.HiddenInput())
+
     class Meta:
         model = Event
         fields = [
@@ -39,6 +44,7 @@ class UserSubmittedEventForm(forms.ModelForm):
             "price",
             "ticket_hyperlink",
             "description",
+            "checked_for_duplicates"
         ]
         labels = {
             "user_submission_email": "yr email",
@@ -100,6 +106,21 @@ class UserSubmittedEventForm(forms.ModelForm):
         if venue is None:
             raise ValidationError("event must contain some venue information")
 
+        # see if it's likely they're submitting an event that already exists.
+        if not data.get("checked_for_duplicates"):
+            self.data = self.data.copy()  # makes form data mutable
+            # we won't check for duplicates when they submit again
+            self.data["checked_for_duplicates"] = True
+            if dupes := Event.find_possible_duplicates(venue, data["starttime"]):
+                event = dupes[0]
+                raise ValidationError(mark_safe(f"""
+                <h3>Possible duplicate event detected!</h3>
+                please check if this is the same event you're trying submit
+                <div><a target="_blank" href="{reverse("event_redirect", args=[event.pk])}">
+                {event.title or event.artists} @ {event.venue}</a></div>
+                <br><br>
+                if you're confident this is not a duplicate go ahead and click submit below.
+                """))
 
 class EventCreateView(CreateView):
     model = Event
