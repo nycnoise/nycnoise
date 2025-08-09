@@ -270,6 +270,8 @@ class Venue(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 
+    is_pacbi = models.BooleanField(default=False, verbose_name="🇵🇸 PACBI")
+
     def save(self, *args, **kwargs):
         # actually save data to db
         super().save(*args, **kwargs)
