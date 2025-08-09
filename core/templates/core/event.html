@@ -87,6 +87,18 @@
 
       //
 
+      {% if event.venue.is_pacbi %}
+        <span class='pacbi'>
+          🇵🇸 <span style="color: #ba372a;"><a style="color: #ba372a;" href="https://nyc-noise.com/pacbi/" target="_blank" rel="noopener"><strong>PACBI</strong></a></span>
+          {% if event.description %}
+            +++
+          {% endif %}
+        </span>
+        {% if not event.description %}
+          //
+        {% endif %}
+      {% endif %}
+
       {% if event.description %}
         <span class='eventDescription'>{{ event.description | safe }}</span> //
       {% endif %}
