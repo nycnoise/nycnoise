@@ -39,16 +39,6 @@
       <p>{{ index_page_messages.post_cal_msg|safe }}</p>
     </div>
   {% endif %}
-
-  <!--
-  <div class="emailForm">
-    <form method='POST' action="{% url 'email_subscribe' %}">
-      {% csrf_token %}
-      <input type='email' name='email' placeholder='you@somewhere.com' required>
-      <input type='submit' value='subscribe'>
-    </form>
-  </div>
-  -->
   
   {% for date_events in grouped_events_as_list %}
     <article>
