@@ -1,7 +1,7 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class IncorrectDateUrlsTestCase(TestCase):
+class IncorrectDateUrlsTestCase(TransactionTestCase):
     def test_incorrect_date_urls(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

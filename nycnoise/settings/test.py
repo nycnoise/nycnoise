@@ -31,5 +31,5 @@ ENABLE_EMAILING_JESSICA_ON_EVENT_SUBMISSION = False
 # to delete that database (and also don't know how it happened/how to avoid
 # this from happening again). this is of course a temporary patch...
 DATABASES["default"]["TEST"] = {
-    "NAME": "test_nycnoise_tmp_name",
+    "NAME": "test_nycnoise_tmp_name_tmp_again",
 }

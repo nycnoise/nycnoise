@@ -1,9 +1,9 @@
 from core.models import StaticPage
-from django.test import TestCase
+from django.test import TransactionTestCase
 from core.tests.test_utils import create_static_test_page
 
 
-class PublicStaticPageTestCase(TestCase):
+class PublicStaticPageTestCase(TransactionTestCase):
     def test_public_static_page(self):
         # create a static page
         page = create_static_test_page()

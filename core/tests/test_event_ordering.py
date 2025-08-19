@@ -3,10 +3,10 @@ from datetime import datetime
 
 from core.models import Event
 from dateutil import relativedelta, tz
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class EventOrderingTestCase(TestCase):
+class EventOrderingTestCase(TransactionTestCase):
     def test_that_ordered_events_appear_in_order(self):
         nyctz = tz.gettz("America/New_York")
         now_datetime = datetime.now().astimezone(nyctz)

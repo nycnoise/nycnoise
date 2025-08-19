@@ -1,11 +1,11 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 from core.tests.test_utils import create_static_test_page
 
 expected_domain = "nyc-noise.com"
 expected_url = f"https://{expected_domain}/"
 
 
-class OpengraphTagsTestCase(TestCase):
+class OpengraphTagsTestCase(TransactionTestCase):
     def test_opengraph_tags_index(self):
         expected_description = (
             "NYC experimental live music calendar • noise, improv, jazz, new music,"

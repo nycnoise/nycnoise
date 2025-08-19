@@ -3,10 +3,10 @@ from datetime import datetime
 
 from core.models import Event
 from dateutil import tz
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class EventOrderingTestCase(TestCase):
+class EventOrderingTestCase(TransactionTestCase):
     def test_that_event_at_hour_is_printed_without_minutes(self):
         nyctz = tz.gettz("America/New_York")
 
