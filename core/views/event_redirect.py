@@ -11,7 +11,10 @@ def event_redirect(request, event_id, tempate_path="core/empty.html"):
     if not event.starttime:
         return redirect("index")
 
-    event_month = event.starttime.strftime("%Y-%m")
+    # CRITICAL! do it in new york time, otherwise... events
+    # might spill over to the next month if they're happening late
+    # on the last day of the new york month :-)
+    event_month = event.starttime.astimezone(NYCTZ).strftime("%Y-%m")
 
     venue = event.venue_override if event.venue_override else event.venue
 
