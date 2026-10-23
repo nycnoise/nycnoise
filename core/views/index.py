@@ -1,7 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncDate
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
@@ -9,11 +8,13 @@ from django.shortcuts import render
 from ..models import DateMessage, Event, IndexPageMessages, StaticPage
 from ..opengraph import get_meta
 from ..utils_datemath import (
+    FIRST_MONTH_START,
     NYCTZ,
     beginning_of_day,
-    first_day_of_month,
     get_current_new_york_datetime,
     get_previous_current_next_month_start,
+    is_valid_archive_month,
+    last_valid_month_start,
 )
 from .search import search
 from .static_page import static_page
@@ -115,25 +116,6 @@ def _get_date_and_page_messages_from_start_to_end_time(
     index_page_messages = IndexPageMessages.objects.first()
 
     return (date_messages, index_page_messages)
-
-
-# the range of month archive urls (/YYYY-MM/) that render.
-# anything outside of it is a 404, otherwise crawlers follow "next month"
-# links forever (we saw bots fetching /2195-07/), and every empty month
-# page is ~50 kb. the range is on purpose NOT based on the first/last event
-# in the database, since a typo'd event in the year 3000 would reopen the trap.
-FIRST_MONTH_START = datetime(2018, 1, 1, 0, 0, 0, 0, tzinfo=NYCTZ)
-MONTHS_INTO_THE_FUTURE = 24
-
-
-def last_valid_month_start():
-    return first_day_of_month(get_current_new_york_datetime()) + relativedelta(
-        months=MONTHS_INTO_THE_FUTURE
-    )
-
-
-def is_valid_archive_month(month_start):
-    return FIRST_MONTH_START <= month_start <= last_valid_month_start()
 
 
 # month_datetime can be any (localized!) date time within the month
