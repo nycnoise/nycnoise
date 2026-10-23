@@ -8,10 +8,13 @@ from django.shortcuts import render
 from ..models import DateMessage, Event, IndexPageMessages, StaticPage
 from ..opengraph import get_meta
 from ..utils_datemath import (
+    FIRST_MONTH_START,
     NYCTZ,
     beginning_of_day,
     get_current_new_york_datetime,
     get_previous_current_next_month_start,
+    is_valid_archive_month,
+    last_valid_month_start,
 )
 from .search import search
 from .static_page import static_page
@@ -173,9 +176,19 @@ def _get_events_page_for_month(
             # as above, don't pass defaultdict's to django templates..!
             "date_messages": dict(date_messages),
             "index_page_messages": index_page_messages,
-            "first_day_of_last_month": first_day_of_last_month,
+            # prev/next are None when there is nothing to link to,
+            # and the template hides the link
+            "first_day_of_last_month": (
+                first_day_of_last_month
+                if first_day_of_last_month >= FIRST_MONTH_START
+                else None
+            ),
             "first_day_of_this_month": first_day_of_this_month,
-            "first_day_of_next_month": first_day_of_next_month,
+            "first_day_of_next_month": (
+                first_day_of_next_month
+                if first_day_of_next_month <= last_valid_month_start()
+                else None
+            ),
             "meta": get_meta(),
         },
     )
@@ -202,12 +215,7 @@ def past_month_archive(request, year, month):
         valid_date = False
 
     if valid_date and month_datetime:
-        # nycnoise's birth is ~august 2018, any date before that is invalid
-        if month_datetime < datetime(2018, 8, 1, 0, 0, 0, 0, tzinfo=NYCTZ):
-            valid_date = False
-        # anything after 2200? is probably wrong too
-        if month_datetime > datetime(2200, 1, 1, 0, 0, 0, 0, tzinfo=NYCTZ):
-            valid_date = False
+        valid_date = is_valid_archive_month(month_datetime)
 
     if not valid_date:
         # if the date is invalid, return a 404

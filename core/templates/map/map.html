@@ -1,7 +1,14 @@
-{% load static %}
-
-<script src="{% static 'core/lib/maplibre-gl.min.js' %}"></script>
-<link rel="stylesheet" href="{% static 'core/lib/maplibre-gl.min.css' %}">
+{# maplibre comes from a cdn instead of our static files: it's ~240 kb gzipped #}
+{# on every page load, and it was counting against render's bandwidth. #}
+{# pinned version + sri hashes, so the cdn can't serve us something else. #}
+{# to upgrade: change the version in both urls and recompute the hashes with #}
+{# curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A #}
+<script src="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.js"
+        integrity="sha384-VMpBpZqwtNOdABxFshfUPnyuqncfZtE0j1evmoWakxTDQ+me3EE4G48K/+dSDxSX"
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.2.0/dist/maplibre-gl.css"
+      integrity="sha384-Nq6PQ+9vJPvw7U/VfDELyrWoGQMsy0gi6QShhaSrGzkpF5KkM40csg2leky+YMTd"
+      crossorigin="anonymous">
 
 <script type="text/javascript">
   document.addEventListener("DOMContentLoaded", function() {

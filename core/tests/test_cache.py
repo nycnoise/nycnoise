@@ -2,10 +2,10 @@ import uuid
 
 from core.models import Event, Venue
 from core.utils_datemath import get_current_new_york_datetime
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class CacheTestCase(TestCase):
+class CacheTestCase(TransactionTestCase):
     def test_that_changing_event_is_reflected(self):
         title = str(uuid.uuid4())
         description = str(uuid.uuid4())

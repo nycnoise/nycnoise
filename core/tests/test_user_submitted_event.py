@@ -3,12 +3,12 @@ from http import HTTPStatus
 
 from core.models import Event, Venue
 from core.views.event_submission import UserSubmittedEventForm
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
 
-class UserSubmittedEventTestCase(TestCase):
+class UserSubmittedEventTestCase(TransactionTestCase):
     endpoint = reverse("submit_event")
 
     def setUp(self):
@@ -71,7 +71,7 @@ class UserSubmittedEventTestCase(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "event must include title or artists")
 
-    def test_user_cant_submit_empty_event(TestCase):
+    def test_user_cant_submit_empty_event(self):
         """user must include at least a time and either a title or artist info"""
         form = UserSubmittedEventForm()
         assert not form.is_valid()
@@ -167,7 +167,7 @@ class UserSubmittedEventTestCase(TestCase):
         open_venue.save()
         closed_venue.save()
 
-        response = self.client.get(reverse('venue-autocomplete'))
+        response = self.client.get(reverse("venue-autocomplete"))
         self.assertContains(response, open_venue.name)
         self.assertNotContains(response, closed_venue.name)
 
