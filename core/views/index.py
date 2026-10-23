@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncDate
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
@@ -10,6 +11,7 @@ from ..opengraph import get_meta
 from ..utils_datemath import (
     NYCTZ,
     beginning_of_day,
+    first_day_of_month,
     get_current_new_york_datetime,
     get_previous_current_next_month_start,
 )
@@ -115,6 +117,25 @@ def _get_date_and_page_messages_from_start_to_end_time(
     return (date_messages, index_page_messages)
 
 
+# the range of month archive urls (/YYYY-MM/) that render.
+# anything outside of it is a 404, otherwise crawlers follow "next month"
+# links forever (we saw bots fetching /2195-07/), and every empty month
+# page is ~50 kb. the range is on purpose NOT based on the first/last event
+# in the database, since a typo'd event in the year 3000 would reopen the trap.
+FIRST_MONTH_START = datetime(2018, 1, 1, 0, 0, 0, 0, tzinfo=NYCTZ)
+MONTHS_INTO_THE_FUTURE = 24
+
+
+def last_valid_month_start():
+    return first_day_of_month(get_current_new_york_datetime()) + relativedelta(
+        months=MONTHS_INTO_THE_FUTURE
+    )
+
+
+def is_valid_archive_month(month_start):
+    return FIRST_MONTH_START <= month_start <= last_valid_month_start()
+
+
 # month_datetime can be any (localized!) date time within the month
 def _get_events_page_for_month(
     request,
@@ -173,9 +194,19 @@ def _get_events_page_for_month(
             # as above, don't pass defaultdict's to django templates..!
             "date_messages": dict(date_messages),
             "index_page_messages": index_page_messages,
-            "first_day_of_last_month": first_day_of_last_month,
+            # prev/next are None when there is nothing to link to,
+            # and the template hides the link
+            "first_day_of_last_month": (
+                first_day_of_last_month
+                if first_day_of_last_month >= FIRST_MONTH_START
+                else None
+            ),
             "first_day_of_this_month": first_day_of_this_month,
-            "first_day_of_next_month": first_day_of_next_month,
+            "first_day_of_next_month": (
+                first_day_of_next_month
+                if first_day_of_next_month <= last_valid_month_start()
+                else None
+            ),
             "meta": get_meta(),
         },
     )
@@ -202,12 +233,7 @@ def past_month_archive(request, year, month):
         valid_date = False
 
     if valid_date and month_datetime:
-        # nycnoise's birth is ~august 2018, any date before that is invalid
-        if month_datetime < datetime(2018, 8, 1, 0, 0, 0, 0, tzinfo=NYCTZ):
-            valid_date = False
-        # anything after 2200? is probably wrong too
-        if month_datetime > datetime(2200, 1, 1, 0, 0, 0, 0, tzinfo=NYCTZ):
-            valid_date = False
+        valid_date = is_valid_archive_month(month_datetime)
 
     if not valid_date:
         # if the date is invalid, return a 404
