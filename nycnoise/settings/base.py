@@ -49,6 +49,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # first, so that blocked crawlers cost one regex match and nothing else
+    # (not even a static file lookup). see core/bots.py for the list.
+    "core.middleware.BlockBotsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     # compress html at the origin. the cdn in front of render compresses
