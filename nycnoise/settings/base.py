@@ -51,6 +51,15 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    # compress html at the origin. the cdn in front of render compresses
+    # to the browser already, but gunicorn was sending full-size html to it.
+    # https://docs.djangoproject.com/en/4.2/ref/middleware/#module-django.middleware.gzip
+    "django.middleware.gzip.GZipMiddleware",
+    # add an etag to every response and answer 304 to repeat fetchers
+    # (feed readers, link previewers) that send if-none-match.
+    # must come after gzip in this list so the etag is computed on the
+    # uncompressed body and gzip then marks it as weak.
+    "django.middleware.http.ConditionalGetMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
