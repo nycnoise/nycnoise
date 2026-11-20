@@ -10,7 +10,11 @@ services:
     env: python
     region: ohio
     buildCommand: "./bin/build.sh"
-    startCommand: 'gunicorn --access-logformat ''%(h)s %(l)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" reqtime: %(M)s ms'' nycnoise.wsgi:application'
+    # %(h)s is render's internal proxy, not the visitor. the real client address
+    # is in a header set by render's edge, so we log both candidates to see
+    # which one is populated: true-client-ip (cloudflare style) and x-forwarded-for
+    # (which render appends to rather than resets, so it can contain junk)
+    startCommand: 'gunicorn --access-logformat ''%(h)s %(l)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" reqtime: %(M)s ms tcip: %({true-client-ip}i)s xff: %({x-forwarded-for}i)s'' nycnoise.wsgi:application'
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.7
