@@ -4,6 +4,7 @@ import time
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseForbidden
+from python_ipware import IpWare
 
 from .bots import DISALLOWED_CRAWLERS
 
@@ -57,15 +58,18 @@ class BlockBotsMiddleware:
 _HEAVY_PATH_RE = re.compile(r"^/(\d{4}-\d{2}/)?$")
 
 
+# on render, requests arrive through render's cloudflare edge, which sets
+# True-Client-IP to the real visitor address. X-Forwarded-For is NOT in the
+# precedence list on purpose: render appends to it instead of replacing it,
+# so a client can forge the first value. locally there is no edge header and
+# REMOTE_ADDR is the client itself.
+# https://github.com/un33k/python-ipware
+_ipware = IpWare(precedence=("HTTP_TRUE_CLIENT_IP", "REMOTE_ADDR"))
+
+
 def client_address(request):
-    # on render, requests arrive through render's cloudflare edge, which sets
-    # True-Client-IP to the real visitor address. X-Forwarded-For is NOT used
-    # on purpose: render appends to it instead of replacing it, so a client can
-    # forge the first value. locally there is no header and REMOTE_ADDR is the
-    # client itself.
-    return request.META.get("HTTP_TRUE_CLIENT_IP") or request.META.get(
-        "REMOTE_ADDR", "unknown"
-    )
+    ip, _trusted_route = _ipware.get_client_ip(request.META)
+    return str(ip) if ip is not None else "unknown"
 
 
 def is_heavy_page(request):

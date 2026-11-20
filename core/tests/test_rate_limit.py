@@ -62,9 +62,38 @@ class RateLimitTestCase(TransactionTestCase):
         request = rf.get("/", HTTP_X_FORWARDED_FOR="1.1.1.1, 2.2.2.2")
         request.META["HTTP_TRUE_CLIENT_IP"] = "203.0.113.9"
         self.assertEqual(client_address(request), "203.0.113.9")
-        # no edge header at all (local dev): the socket address
+        # no edge header at all (local dev): the socket address, even when
+        # a forged x-forwarded-for carries a public address
         request = rf.get("/", HTTP_X_FORWARDED_FOR="1.1.1.1", REMOTE_ADDR="10.0.0.2")
         self.assertEqual(client_address(request), "10.0.0.2")
+        request = rf.get(
+            "/", HTTP_X_FORWARDED_FOR="8.8.8.8, 9.9.9.9", REMOTE_ADDR="127.0.0.1"
+        )
+        self.assertEqual(client_address(request), "127.0.0.1")
+        # the edge header wins over the socket address, and also over the
+        # other spoofable headers ipware knows about
+        request = rf.get(
+            "/",
+            HTTP_X_REAL_IP="8.8.8.8",
+            HTTP_CF_CONNECTING_IP="8.8.4.4",
+            REMOTE_ADDR="10.0.0.2",
+        )
+        request.META["HTTP_TRUE_CLIENT_IP"] = "203.0.113.9"
+        self.assertEqual(client_address(request), "203.0.113.9")
+        # ipv6 works too
+        request = rf.get("/", REMOTE_ADDR="10.0.0.2")
+        request.META["HTTP_TRUE_CLIENT_IP"] = "2001:db8::1"
+        self.assertEqual(client_address(request), "2001:db8::1")
+
+    def test_forged_forwarded_for_cannot_dodge_the_limit(self):
+        # same true client, rotating forged x-forwarded-for values: one bucket
+        for i in range(LIMIT + 1):
+            response = self.client.get(
+                "/",
+                HTTP_TRUE_CLIENT_IP="203.0.113.77",
+                HTTP_X_FORWARDED_FOR=f"10.1.{i}.1",
+            )
+        self.assertEqual(response.status_code, 429)
 
     def test_which_paths_are_heavy(self):
         rf = RequestFactory()
