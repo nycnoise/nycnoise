@@ -13,3 +13,5 @@ DJANGO_SETTINGS_MODULE=nycnoise.settings.test python manage.py test --noinput
 python manage.py compilescss
 python manage.py collectstatic --no-input
 python manage.py migrate
+# cache table for the rate limiter (idempotent, not a migration)
+python manage.py createcachetable

@@ -52,6 +52,9 @@ MIDDLEWARE = [
     # first, so that blocked crawlers cost one regex match and nothing else
     # (not even a static file lookup). see core/bots.py for the list.
     "core.middleware.BlockBotsMiddleware",
+    # second: per client address rate limit on the heavy pages (homepage and
+    # month pages), see core/middleware.py. uses the cache below.
+    "core.middleware.RateLimitMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     # compress html at the origin. the cdn in front of render compresses
@@ -127,6 +130,23 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+# cache: only used by the rate limiter. the database backend is shared by
+# all gunicorn workers (an in-memory cache would count each worker separately,
+# i.e. with 4 workers a scraper could do 4x the limit). the table is created
+# by `manage.py createcachetable` in bin/build.sh, it is not a migration.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache_table",
+    }
+}
+
+# rate limit for GET requests to the homepage and month pages, per client
+# address. 60 full page views in 10 minutes is far more than a person
+# browsing the calendar, and far less than a scraper walking every month.
+RATE_LIMIT_PAGE_VIEWS = 60
+RATE_LIMIT_WINDOW_SECONDS = 600
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

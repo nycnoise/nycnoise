@@ -16,7 +16,7 @@
         "hook:deploy:start:before":
         {
             "type": "command",
-            "command": "python manage.py migrate"
+            "command": "python manage.py migrate && python manage.py createcachetable"
         }
     }
 }
