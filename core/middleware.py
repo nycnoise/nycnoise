@@ -38,6 +38,11 @@ class BlockBotsMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if is_blocked_user_agent(request.META.get("HTTP_USER_AGENT", "")):
+        # blocked crawlers must still be able to read robots.txt: search
+        # engines treat a 4xx robots.txt as "no rules, crawl everything",
+        # so the polite ones would never learn that they're unwelcome.
+        if request.path != "/robots.txt" and is_blocked_user_agent(
+            request.META.get("HTTP_USER_AGENT", "")
+        ):
             return HttpResponseForbidden("forbidden", content_type="text/plain")
         return self.get_response(request)

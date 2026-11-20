@@ -50,7 +50,7 @@ class BlockBotsTestCase(TransactionTestCase):
 
     def test_blocked_user_agents_get_a_tiny_403_everywhere(self):
         for ua in BLOCKED:
-            for url in ["/", "/2024-01/", "/robots.txt", "/static/scss/core.css"]:
+            for url in ["/", "/2024-01/", "/sitemap.xml", "/static/scss/core.css"]:
                 response = self.client.get(url, HTTP_USER_AGENT=ua)
                 self.assertEqual(response.status_code, 403, (ua, url))
                 self.assertLess(len(response.content), 100, (ua, url))
