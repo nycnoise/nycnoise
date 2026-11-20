@@ -3,11 +3,11 @@ from datetime import datetime
 
 from core.models import Event, Venue
 from dateutil import relativedelta, tz
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.urls import reverse
 
 
-class ArchivePageTestCase(TestCase):
+class ArchivePageTestCase(TransactionTestCase):
     def setUp(self):
         self.venue = Venue.objects.create(name=f"venue {uuid.uuid4()}")
 

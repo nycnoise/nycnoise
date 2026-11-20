@@ -1,7 +1,7 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class IndexPageTestCase(TestCase):
+class IndexPageTestCase(TransactionTestCase):
     def test_index_page(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

@@ -9,6 +9,7 @@ from .views.event_redirect import event_redirect
 from .views.event_submission import EventCreateView
 from .views.index import index, past_month_archive
 from .views.internal_db_dump import internal_db_dump
+from .views.robots import robots_txt
 
 urlpatterns = [
     # the two main event page types:
@@ -18,6 +19,9 @@ urlpatterns = [
     # 3) a list of events which, starting ~March 2025, shows events starting today AND
     # 3 weeks of events into the future
     path("", index),
+    # must be declared here, before the static page catch-all in nycnoise/urls.py,
+    # otherwise /robots.txt gets redirected to /robots.txt/ and then 404s
+    path("robots.txt", robots_txt, name="robots_txt"),
     # - the monthly archives ie /2025-02/ showing
     # all events for the entire month ie from the first to the last day of the month
     re_path(

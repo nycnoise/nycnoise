@@ -3,10 +3,10 @@ from datetime import datetime
 
 from core.models import DateMessage
 from dateutil import tz
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
-class DateMessageTestCase(TestCase):
+class DateMessageTestCase(TransactionTestCase):
     def test_that_date_message_shows_up(self):
         nyctz = tz.gettz("America/New_York")
 

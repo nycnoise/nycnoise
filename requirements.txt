@@ -55,6 +55,7 @@ pytest==8.4.1
 pytest-django==4.11.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
+python-ipware==4.1.1
 pytz==2025.2
 PyYAML==6.0.2
 rcssmin==1.1.2

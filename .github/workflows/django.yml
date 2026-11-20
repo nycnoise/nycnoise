@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [dev]
+    branches: [main, dev]
   pull_request:
-    branches: [dev]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -42,7 +42,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run Tests
         run: |
-          python manage.py test
+          python manage.py test --noinput
         env:
           DATABASE_URL: "postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}"
           DJANGO_SECRET_KEY: "F5ADD2EE-40F5-4F4E-911C-4714E7CA873F"

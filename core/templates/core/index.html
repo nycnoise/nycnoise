@@ -29,9 +29,9 @@
   {% include "calendar/calendar.html" with calendar_dates=calendar_dates all_event_dates=all_event_dates only %}
 
   <div class='noCalMonthLinks'>
-    <a href="/{{ first_day_of_last_month|date:'Y-m' }}/">← {{ first_day_of_last_month|nyc_noise_navigation_bar_month }}</a>
+    {% if first_day_of_last_month %}<a href="/{{ first_day_of_last_month|date:'Y-m' }}/">← {{ first_day_of_last_month|nyc_noise_navigation_bar_month }}</a>{% endif %}
     <a href="/{{ first_day_of_this_month|date:'Y-m' }}/">🗓️ {{ first_day_of_this_month|nyc_noise_navigation_bar_month }}</a>
-    <a href="/{{ first_day_of_next_month|date:'Y-m' }}/">{{ first_day_of_next_month|nyc_noise_navigation_bar_month }} →</a>
+    {% if first_day_of_next_month %}<a href="/{{ first_day_of_next_month|date:'Y-m' }}/">{{ first_day_of_next_month|nyc_noise_navigation_bar_month }} →</a>{% endif %}
   </div>
 
   {% if index_page_messages and index_page_messages.post_cal_msg %}
@@ -39,16 +39,6 @@
       <p>{{ index_page_messages.post_cal_msg|safe }}</p>
     </div>
   {% endif %}
-
-  <!--
-  <div class="emailForm">
-    <form method='POST' action="{% url 'email_subscribe' %}">
-      {% csrf_token %}
-      <input type='email' name='email' placeholder='you@somewhere.com' required>
-      <input type='submit' value='subscribe'>
-    </form>
-  </div>
-  -->
   
   {% for date_events in grouped_events_as_list %}
     <article>
@@ -94,9 +84,9 @@
   {% endfor %}
 
   <div class='noCalMonthLinks' style="margin-top:30px;margin-bottom:30px;">
-    <a href="/{{ first_day_of_last_month|date:'Y-m' }}/">← {{ first_day_of_last_month|nyc_noise_navigation_bar_month }}</a>
+    {% if first_day_of_last_month %}<a href="/{{ first_day_of_last_month|date:'Y-m' }}/">← {{ first_day_of_last_month|nyc_noise_navigation_bar_month }}</a>{% endif %}
     <a href="/{{ first_day_of_this_month|date:'Y-m' }}/">🗓️ {{ first_day_of_this_month|nyc_noise_navigation_bar_month }}</a>
-    <a href="/{{ first_day_of_next_month|date:'Y-m' }}/">{{ first_day_of_next_month|nyc_noise_navigation_bar_month }} →</a>
+    {% if first_day_of_next_month %}<a href="/{{ first_day_of_next_month|date:'Y-m' }}/">{{ first_day_of_next_month|nyc_noise_navigation_bar_month }} →</a>{% endif %}
   </div>
 
 {% endblock content %}
